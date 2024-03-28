@@ -1,26 +1,45 @@
 package u04lab
-import u03.Sequences.* 
-import Sequence.*
+import u03.Sequences._
+import Sequence._
+import u03.Optionals.Optional
+import u04lab.Ex5Traversable.logAll
+import u04lab.Ex5Traversable.log
 
-/*  Exercise 5: 
- *  - Generalise by ad-hoc polymorphism logAll, such that:
- *  -- it can be called on Sequences but also on Optional, or others... 
- *  -- it does not necessarily call log, but any function with analogous type
- *  - Hint: introduce a type class Traversable[T[_]]], capturing the ability of calling a
- *    "consumer function" on all elements (with type A) of a datastructure T[A] 
- *    Note Traversable is a 2-kinded trait (similar to Filterable, or Monad)
- *  - Write givens for Traversable[Optional] and Traversable[Sequence]
- *  - Show you can use the generalisation of logAll to:
- *  -- log all elements of an Optional, or of a Traversable
- *  -- println(_) all elements of an Optional, or of a Traversable
- */
+trait Traversable[T[_]]:
+  def traverse[A](t: T[A])(f: A => Unit): Unit
 
-object Ex5Traversable:
+given Traversable[Optional] with
+  def traverse[A](o: Optional[A])(f: A => Unit): Unit = o match
+    case Optional.Just(a) => f(a)
+    case Optional.Empty() => ()
 
-  def log[A](a: A): Unit = println("The next element is: "+a)
-
-  def logAll[A](seq: Sequence[A]): Unit = seq match
-    case Cons(h, t) => log(h); logAll(t)
+given Traversable[Sequence] with
+  def traverse[A](s: Sequence[A])(f: A => Unit): Unit = s match
+    case Cons(h, t) => f(h); traverse(t)(f)
     case _ => ()
 
-  
+object Ex5Traversable:
+  def log[A](a: A): Unit = println("The next element is: " + a)
+
+  def logAll[T[_], A](t: T[A])(using traversable: Traversable[T])(f: A => Unit): Unit =
+    traversable.traverse(t)(f)
+
+@main def tryTraversable =
+  val seq: Sequence[Int] = Cons(1, Cons(2, Cons(3, Nil())))
+  val opt: Optional[Int] = Optional.Just(10)
+
+  // Log all elements of a Sequence
+  logAll(seq)(log)
+
+  // Log all elements of an Optional
+  logAll(opt)(log)
+
+  // Print all elements of a Sequence
+  logAll(seq)(println(_))
+
+  // Print all elements of an Optional
+  logAll(opt)(println(_))
+
+
+
+

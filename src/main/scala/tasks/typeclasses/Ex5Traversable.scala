@@ -24,21 +24,21 @@ object Ex5Traversable:
   def logAll[T[_], A](t: T[A])(using traversable: Traversable[T])(f: A => Unit): Unit =
     traversable.traverse(t)(f)
 
-@main def tryTraversable =
-  val seq: Sequence[Int] = Cons(1, Cons(2, Cons(3, Nil())))
-  val opt: Optional[Int] = Optional.Just(10)
+  @main def tryTraversable =
+    val seq: Sequence[Int] = Cons(1, Cons(2, Cons(3, Nil())))
+    val opt: Optional[Int] = Optional.Just(10)
 
-  // Log all elements of a Sequence
-  logAll(seq)(log)
+    // Log all elements of a Sequence
+    logAll(seq)(log)
 
-  // Log all elements of an Optional
-  logAll(opt)(log)
+    // Log all elements of an Optional
+    logAll(opt)(log)
 
-  // Print all elements of a Sequence
-  logAll(seq)(println(_))
+    // Print all elements of a Sequence
+    logAll(seq)(println(_))
 
-  // Print all elements of an Optional
-  logAll(opt)(println(_))
+    // Print all elements of an Optional
+    logAll(opt)(println(_))
 
 
 

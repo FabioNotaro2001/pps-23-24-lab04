@@ -51,14 +51,32 @@ object SchoolModel:
     extension (school: School) def coursesOfATeacher(teacher: Teacher): Sequence[Course] = teacher match
       case CaseClassForTeacher(_, c) => c
     
+    extension (school: School) def teacherByName(name: String): Optional[Teacher] = 
+      def getTeacher(n: String, teachers: Sequence[CaseClassForTeacher]): Optional[CaseClassForTeacher] = teachers match
+        case Cons(CaseClassForTeacher(teacherName, c), _) if n == teacherName => Optional.Just(CaseClassForTeacher(teacherName, c))
+        case Cons(CaseClassForTeacher(_, _), t) => getTeacher(n, t)
+        case _ => Optional.Empty()
 
-    // extension (school: School) def teacherByName(name: String): Optional[Teacher] = school match
-    //   case CaseClassForSchool(teachers, courses) => Optional.Just(filter(teachers)((n, c) => n == name))
-    
-    
-    
+      school match
+        case CaseClassForSchool(t, _) => getTeacher(name, t)
 
-    
-    
+    extension (school: School) def courseByName(name: String): Optional[Course] = 
+      def getCourse(n: String, courses: Sequence[CaseClassForCourse]): Optional[CaseClassForCourse] = courses match
+        case Cons(CaseClassForCourse(courseName), _) if courseName == n => Optional.Just(CaseClassForCourse(n))
+        case Cons(CaseClassForCourse(_), t) => getCourse(n, t)
+        case _ => Optional.Empty()
 
-    
+      school match
+        case CaseClassForSchool(_, c) => getCourse(name, c)
+      
+    extension (school: School) def nameOfCourse(course: Course): String = course match
+      case CaseClassForCourse(n) => n
+
+    extension (school: School) def setTeacherToCourse(teacher: Teacher, course: Course): School = 
+      val mapTeachers: Teacher => Teacher = (t) => (t, teacher) match
+          case (CaseClassForTeacher(n1, c), CaseClassForTeacher(n2, _)) if n1 == n2 => CaseClassForTeacher(n1, Cons(course, c))
+          case _ => t
+      school match
+        case CaseClassForSchool(teachers, courses) if teachers != Sequence.Nil() && courses != Sequence.Nil() =>
+          CaseClassForSchool(Sequence.map(teachers: Sequence[CaseClassForTeacher])(mapTeachers), courses)
+        case _ => school

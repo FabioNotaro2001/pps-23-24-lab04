@@ -9,6 +9,7 @@ trait WindowState:
   def setSize(width: Int, height: Int): State[Window, Unit]
   def addButton(text: String, name: String): State[Window, Unit]
   def addLabel(text: String, name: String): State[Window, Unit]
+  def addTextField(text: String, name: String): State[Window, Unit]
   def toLabel(text: String, name: String): State[Window, Unit]
   def show(): State[Window, Unit]
   def exec(cmd: =>Unit): State[Window, Unit]
@@ -26,6 +27,8 @@ object WindowStateImpl extends WindowState:
     State(w => ((w.setSize(width, height)), {}))
   def addButton(text: String, name: String): State[Window, Unit] =
     State(w => ((w.addButton(text, name)), {}))
+  def addTextField(text: String, name: String): State[Window, Unit] =
+    State(w => ((w.addTextField(text, name)), {}))
   def addLabel(text: String, name: String): State[Window, Unit] =
     State(w => ((w.addLabel(text, name)), {}))
   def toLabel(text: String, name: String): State[Window, Unit] =
@@ -47,6 +50,7 @@ object WindowStateImpl extends WindowState:
     _ <- addButton(text = "inc", name = "IncButton")
     _ <- addButton(text = "dec", name = "DecButton")
     _ <- addButton(text = "quit", name = "QuitButton")
+    _ <- addButton(text = "set", name = "SetButton")
     _ <- addLabel(text = "-", name = "Label1")
     _ <- show()
     e <- eventStream()
@@ -57,6 +61,7 @@ object WindowStateImpl extends WindowState:
     e <- eventStream()
     _ <- seqN(e.map(_ match
         case "IncButton" => toLabel("i", "Label1")
+        case "SetButton" => toLabel("s", "Label1")
         case "DecButton" => toLabel("d", "Label1")
         case "QuitButton" => exec(sys.exit())))
   yield ()

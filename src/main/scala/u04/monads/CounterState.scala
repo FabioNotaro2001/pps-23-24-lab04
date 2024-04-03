@@ -10,6 +10,7 @@ trait CounterState:
   def reset(): State[Counter, Unit]
   def get(): State[Counter, Int]
   def nop(): State[Counter, Unit]
+  def set(v: Int): State[Counter, Unit]
 
 object CounterStateImpl extends CounterState:
   opaque type Counter = Int
@@ -22,6 +23,7 @@ object CounterStateImpl extends CounterState:
   def reset(): State[Counter, Unit] = State(i => (0, ()));
   def get(): State[Counter, Int] = State(i => (i, i));
   def nop(): State[Counter, Unit] = State(i => (i, ()));
+  def set(v: Int ): State[Counter, Unit] = State(i => (v, ()));
 
 @main def tryCounterState =
   import Monads.*, Monad.*, States.{*, given}, State.*
